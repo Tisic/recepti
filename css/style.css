@@ -1,0 +1,213 @@
+/* ============================================================
+   Glavni CSS fajl za MojiRecepti aplikaciju
+   Bootstrap radi teske posao, ovde su samo dodaci i prepravke
+   ============================================================ */
+
+/* ---------- opsti body stil ---------- */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* pozadina za login/register stranicu - lepi gradijent umesto bele */
+.bg-login {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+}
+
+/* ---------- navbar fiksiran na vrhu, sadrzaj ispod njega ---------- */
+.navbar-brand {
+  font-size: 1.4rem;
+  letter-spacing: 0.5px;
+}
+
+/* malo razmaka ispod navbara da sadrzaj ne ide ispod njega */
+.page-content {
+  padding-top: 80px;
+}
+
+/* ---------- kartice (cards) ---------- */
+.card {
+  border-radius: 12px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* blaga animacija na hover - kartica se malo podigne */
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* zaobljeni uglovi na vrhu kartice */
+.card-header {
+  border-radius: 12px 12px 0 0 !important;
+}
+
+/* ---------- tabele ---------- */
+.table th {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  vertical-align: middle; /* tekst u sredini celije po visini */
+}
+
+/* ---------- dugmici ---------- */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+/* ---------- forme ---------- */
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  padding: 10px 14px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.form-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+/* ---------- badge-ovi za kategorije ---------- */
+.badge {
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-weight: 500;
+}
+
+/* ---------- alert poruke ---------- */
+.alert {
+  border-radius: 10px;
+  border: none;
+  padding: 12px 16px;
+}
+
+/* ---------- statisticke kartice na panelu ---------- */
+.card.text-white h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.card.text-white small {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+/* ---------- slike recepta ---------- */
+.recept-slika {
+  width: 100%;
+  height: 200px;
+  object-fit: cover; /* sece sliku da popuni prostor bez razvlacenja */
+  border-radius: 8px;
+}
+
+/* placeholder kad nema slike - sivi kvadrat sa ikonom */
+.slika-placeholder {
+  width: 100%;
+  height: 200px;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 3rem;
+  color: #aaa;
+}
+
+/* ---------- nutritivna tabela u detaljima recepta ---------- */
+.nutritivna-tabela th {
+  background: #212529;
+  color: white;
+  font-size: 0.8rem;
+}
+
+.nutritivna-tabela td {
+  font-size: 0.9rem;
+}
+
+/* ---------- modal prozori ---------- */
+.modal-content {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  border-radius: 14px 14px 0 0 !important;
+  border-bottom: none;
+  padding: 20px 24px;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+/* ---------- navbar linkovi - aktivan link ---------- */
+.nav-link:hover {
+  color: #fff !important;
+  opacity: 0.9;
+}
+
+/* ---------- footer na login stranici ---------- */
+.card-footer {
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  border-radius: 0 0 12px 12px !important;
+}
+
+.card.text-white .card-footer {
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid rgba(0, 0, 0, 0.16);
+}
+
+.card.text-white .card-footer a {
+  color: #000 !important;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.card.text-white .card-footer a:hover {
+  color: #111 !important;
+}
+
+/* ---------- responzivnost - manje velicine na mobilnom ---------- */
+@media (max-width: 576px) {
+  .card.text-white h2 {
+    font-size: 1.8rem;
+  }
+
+  .table-responsive {
+    font-size: 0.8rem;
+  }
+
+  .btn-sm {
+    padding: 3px 7px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ---------- loading animacija (za buduce potrebe) ---------- */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
