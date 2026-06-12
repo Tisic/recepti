@@ -3,7 +3,7 @@
 Aplikacija za upravljanje receptima i obrocima na osnovu MySQL baze.
 
 **Tehnologije:** PHP, MySQL, Bootstrap, OOP  
-**Tema:** Aplikacija za prikupljanje recepata sa pratnjom dnevnih obroka i alergena
+**Tema:** Aplikacija za upravljanje ličnim receptima i obrocima - Informacije o receptima, sastojcima, obrocima, planovima ishrane i alergenima
 
 ---
 
