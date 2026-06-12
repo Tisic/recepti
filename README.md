@@ -7,32 +7,7 @@ Aplikacija za upravljanje receptima i obrocima na osnovu MySQL baze.
 
 ---
 
-## Brza instalacija
-
-### Korak 1: Baza podataka
-
-U phpMyAdmin kreiraj novu bazu `recepti_app`, pa importuj `sql/recepti_app.sql`.
-
-Ili iz terminala:
-
-```
-mysql -u root recepti_app < sql/recepti_app.sql
-```
-
-### Korak 2: Konekcija
-
-Otvori `php/klase/Baza.php` i proveri da li su ovi parametri ispravni:
-
-```php
-$host     = 'localhost';
-$korisnik = 'root';
-$sifra    = '';
-$baza     = 'recepti_app';
-```
-
-### Korak 3: Pokreni
-
-Postavi folder u htdocs i otvori `http://localhost/recepti/`.
+otvori `http://localhost/recepti/`.
 
 ---
 
@@ -45,7 +20,7 @@ Lozinka: password
 
 ---
 
-## Kako funkcioniše
+
 
 ### Login i registracija
 
