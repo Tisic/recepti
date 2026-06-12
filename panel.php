@@ -5,6 +5,50 @@ require_once 'php/klase/Recept.php';
 require_once 'php/klase/Entiteti.php';
 Korisnik::zahtevajPrijavu();
 
+function getRecipeImageSrc(string $filename): string {
+    $filename = trim($filename);
+    if ($filename === '') {
+        return 'img/default.jpg';
+    }
+
+    $imgDir = __DIR__ . '/img/hrana/';
+    $candidate = $imgDir . $filename;
+    if (file_exists($candidate)) {
+        return 'img/hrana/' . $filename;
+    }
+
+    $rootDir = __DIR__ . '/img/';
+    $rootCandidate = $rootDir . $filename;
+    if (file_exists($rootCandidate)) {
+        return 'img/' . $filename;
+    }
+
+    $base = pathinfo($filename, PATHINFO_FILENAME);
+    foreach (['png', 'jpg', 'jpeg', 'webp', 'gif'] as $ext) {
+        $try = $imgDir . $base . '.' . $ext;
+        if (file_exists($try)) {
+            return 'img/hrana/' . $base . '.' . $ext;
+        }
+        $rootTry = $rootDir . $base . '.' . $ext;
+        if (file_exists($rootTry)) {
+            return 'img/' . $base . '.' . $ext;
+        }
+    }
+
+    $files = is_dir($imgDir) ? scandir($imgDir) : [];
+    foreach ($files as $file) {
+        if (!is_file($imgDir . $file)) {
+            continue;
+        }
+        $fileBase = pathinfo($file, PATHINFO_FILENAME);
+        if ($fileBase === $base || strpos($fileBase, $base) !== false || strpos($base, $fileBase) !== false) {
+            return 'img/hrana/' . $file;
+        }
+    }
+
+    return 'img/default.jpg';
+}
+
 // uzimamo statistike za dashboard kartice
 $recept   = new Recept();
 $alergen  = new Alergen();
@@ -115,8 +159,9 @@ $poslednji = array_slice($poslednji, 0, 5);
                     <tbody>
                         <?php foreach ($poslednji as $r): ?>
                         <tr>
-                            <td><?= htmlspecialchars($r['Naziv']) ?></td>
-                            <td><span class="badge bg-secondary"><?= htmlspecialchars($r['Kategorija']) ?></span></td>
+                            <td class="hover-img" data-img="<?= htmlspecialchars(getRecipeImageSrc($r['Slika'] ?? '')) ?>"><?= htmlspecialchars($r['Naziv']) ?></td>
+                            <?php $kat = trim((string)($r['Kategorija'] ?? '')); ?>
+                            <td><span class="badge bg-secondary"><?= ($kat === '' || $kat === '0') ? '-' : htmlspecialchars(ucfirst($kat)) ?></span></td>
                             <td><?= htmlspecialchars($r['Ime'] . ' ' . $r['Prezime']) ?></td>
                             <td><?= $r['BrojPorcija'] ?></td>
                             <td><?= date('d.m.Y', strtotime($r['DatumDodavanja'])) ?></td>
@@ -133,6 +178,62 @@ $poslednji = array_slice($poslednji, 0, 5);
 
 </div>
 
+<style>
+.hover-popup{position:fixed;pointer-events:none;z-index:2100;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.25);display:none;background:#fff}
+.hover-popup img{display:block;max-width:260px;max-height:260px;object-fit:cover}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    let hoverTimer = null;
+    let lastX = 0, lastY = 0;
+    const popup = document.createElement('div');
+    popup.className = 'hover-popup';
+    popup.innerHTML = '<img src="" alt="">';
+    document.body.appendChild(popup);
+
+    function showPopup(src, x, y){
+        const img = popup.querySelector('img');
+        img.src = src;
+        const w = 280, h = 280;
+        if (x + w > window.innerWidth) x = x - w - 24;
+        if (y + h > window.innerHeight) y = window.innerHeight - h - 10;
+        popup.style.left = (Math.max(8, x)) + 'px';
+        popup.style.top = (Math.max(8, y)) + 'px';
+        popup.style.display = 'block';
+    }
+    function hidePopup(){
+        popup.style.display = 'none';
+        popup.querySelector('img').src = '';
+    }
+
+    document.querySelectorAll('[data-img]').forEach(el=>{
+        el.addEventListener('mouseenter', function(e){
+            const src = el.getAttribute('data-img');
+            if (e && e.clientX) { lastX = e.clientX; lastY = e.clientY; }
+            hoverTimer = setTimeout(()=>{
+                let x = lastX || (el.getBoundingClientRect().right + 8);
+                let y = lastY || el.getBoundingClientRect().top;
+                showPopup(src, x + 12, y + 12);
+            }, 1000);
+        });
+        el.addEventListener('mousemove', function(e){
+            if (e && e.clientX) { lastX = e.clientX; lastY = e.clientY; }
+            if (popup.style.display === 'block'){
+                let x = e.clientX + 12;
+                let y = e.clientY + 12;
+                if (x + popup.offsetWidth > window.innerWidth) x = e.clientX - popup.offsetWidth - 12;
+                if (y + popup.offsetHeight > window.innerHeight) y = window.innerHeight - popup.offsetHeight - 10;
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+            }
+        });
+        el.addEventListener('mouseleave', function(){
+            if (hoverTimer){ clearTimeout(hoverTimer); hoverTimer = null; }
+            hidePopup();
+        });
+    });
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

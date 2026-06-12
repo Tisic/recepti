@@ -63,7 +63,7 @@ $uspeh = $_GET['uspeh'] ?? '';
                                      alt="<?= htmlspecialchars($s['Naziv']) ?>"
                                      style="width:40px; height:40px; object-fit:cover; border-radius:6px;">
                             </td>
-                            <td><?= htmlspecialchars($s['Naziv']) ?></td>
+                            <td class="hover-img" data-img="<?= htmlspecialchars('img/sastojci/' . ($s['Slika'] ?? 'default.jpg')) ?>"><?= htmlspecialchars($s['Naziv']) ?></td>
                             <td><strong><?= $s['Kalorije'] ?></strong></td>
                             <td><?= $s['Proteini'] ?></td>
                             <td><?= $s['Ugljeni_hidrati'] ?></td>
@@ -171,6 +171,63 @@ $uspeh = $_GET['uspeh'] ?? '';
             editTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
+</script>
+<style>
+/* Hover image popup (same behavior as in recepti.php) */
+.hover-popup{position:fixed;pointer-events:none;z-index:2100;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.25);display:none;background:#fff}
+.hover-popup img{display:block;max-width:260px;max-height:260px;object-fit:cover}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    let hoverTimer = null;
+    let lastX = 0, lastY = 0;
+    const popup = document.createElement('div');
+    popup.className = 'hover-popup';
+    popup.innerHTML = '<img src="" alt="">';
+    document.body.appendChild(popup);
+
+    function showPopup(src, x, y){
+        const img = popup.querySelector('img');
+        img.src = src;
+        const w = 280, h = 280;
+        if (x + w > window.innerWidth) x = x - w - 24;
+        if (y + h > window.innerHeight) y = window.innerHeight - h - 10;
+        popup.style.left = (Math.max(8, x)) + 'px';
+        popup.style.top = (Math.max(8, y)) + 'px';
+        popup.style.display = 'block';
+    }
+    function hidePopup(){
+        popup.style.display = 'none';
+        const img = popup.querySelector('img'); img.src = '';
+    }
+
+    document.querySelectorAll('[data-img]').forEach(el=>{
+        el.addEventListener('mouseenter', function(e){
+            const src = el.getAttribute('data-img');
+            if (e && e.clientX) { lastX = e.clientX; lastY = e.clientY; }
+            hoverTimer = setTimeout(()=>{
+                let x = lastX || (el.getBoundingClientRect().right + 8);
+                let y = lastY || el.getBoundingClientRect().top;
+                showPopup(src, x + 12, y + 12);
+            }, 1000);
+        });
+        el.addEventListener('mousemove', function(e){
+            if (e && e.clientX) { lastX = e.clientX; lastY = e.clientY; }
+            if (popup.style.display === 'block'){
+                let x = e.clientX + 12;
+                let y = e.clientY + 12;
+                if (x + popup.offsetWidth > window.innerWidth) x = e.clientX - popup.offsetWidth - 12;
+                if (y + popup.offsetHeight > window.innerHeight) y = window.innerHeight - popup.offsetHeight - 10;
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+            }
+        });
+        el.addEventListener('mouseleave', function(){
+            if (hoverTimer){ clearTimeout(hoverTimer); hoverTimer = null; }
+            hidePopup();
+        });
+    });
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

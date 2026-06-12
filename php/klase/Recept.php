@@ -27,7 +27,7 @@ class Recept extends EntitetBaze {
 
         $slika = $podaci['slika'] ?? 'default.jpg'; // ako ne postavljaju sliku, koristi defaultnu
 
-        $stmt->bind_param('issiiiiss',
+        $stmt->bind_param('issiiisss',
             $podaci['korisnik_id'],
             $podaci['naziv'],
             $podaci['opis'],

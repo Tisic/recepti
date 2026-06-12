@@ -89,7 +89,18 @@ switch ($tip) {
         $recept = new Recept();
 
         if ($akcija === 'dodaj') {
+            // DEBUG: log incoming POST for diagnostics (temporary)
+            $logDir = __DIR__ . '/../php-logs';
+            if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+            @file_put_contents($logDir . '/tmp_post_log.txt', "--- " . date('c') . " IP:" . ($_SERVER['REMOTE_ADDR'] ?? 'cli') . " ---\n" . print_r($_POST, true) . "\n", FILE_APPEND);
+
             $naziv = trim($_POST['naziv'] ?? '');
+            $allowedKategorije = ['doručak','ručak','večera','užina'];
+            $kategorijaInput = $_POST['kategorija'] ?? '';
+            if (!in_array($kategorijaInput, $allowedKategorije, true)) {
+                header('Location: ../recepti.php?greska=1');
+                exit;
+            }
             $slika = getUploadedImageName($naziv, 'hrana') ?? 'default.jpg';
             $podaci = [
                 'korisnik_id'    => getKorisnikId(),
@@ -98,7 +109,7 @@ switch ($tip) {
                 'vreme_pripreme' => (int)($_POST['vreme_pripreme'] ?? 0),
                 'vreme_pecenja'  => (int)($_POST['vreme_pecenja'] ?? 0),
                 'broj_porcija'   => (int)($_POST['broj_porcija'] ?? 1),
-                'kategorija'     => $_POST['kategorija'] ?? '',
+                'kategorija'     => $kategorijaInput,
                 'tezina'         => $_POST['tezina'] ?? 'lako',
                 'slika'          => $slika,
             ];
@@ -133,6 +144,12 @@ switch ($tip) {
 
         } elseif ($akcija === 'azuriraj') {
             $id = (int)($_GET['id'] ?? 0);
+            $allowedKategorije = ['doručak','ručak','večera','užina'];
+            $kategorijaInput = $_POST['kategorija'] ?? '';
+            if (!in_array($kategorijaInput, $allowedKategorije, true)) {
+                header('Location: ../recepti.php?izmeni=' . $id . '&greska=1');
+                exit;
+            }
             $slika = getUploadedImageName(trim($_POST['naziv'] ?? ''), 'hrana');
             $podaci = [
                 'naziv'          => trim($_POST['naziv'] ?? ''),
@@ -140,7 +157,7 @@ switch ($tip) {
                 'vreme_pripreme' => (int)($_POST['vreme_pripreme'] ?? 0),
                 'vreme_pecenja'  => (int)($_POST['vreme_pecenja'] ?? 0),
                 'broj_porcija'   => (int)($_POST['broj_porcija'] ?? 1),
-                'kategorija'     => $_POST['kategorija'] ?? '',
+                'kategorija'     => $kategorijaInput,
                 'tezina'         => $_POST['tezina'] ?? 'lako',
             ];
             if ($slika !== null) {

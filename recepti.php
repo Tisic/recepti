@@ -104,6 +104,7 @@ $uspeh = $_GET['uspeh'] ?? '';
     <?php if ($uspeh == 1) echo '<div class="alert alert-success alert-dismissible fade show">✅ Recept dodat!</div>'; ?>
     <?php if ($uspeh == 2) echo '<div class="alert alert-info alert-dismissible fade show">✏️ Recept izmenjen!</div>'; ?>
     <?php if ($uspeh == 3) echo '<div class="alert alert-warning alert-dismissible fade show">🗑️ Recept obrisan!</div>'; ?>
+    <?php if (isset($_GET['greska']) && $_GET['greska'] == 1) echo '<div class="alert alert-danger">⚠️ Morate izabrati kategoriju (Doručak / Ručak / Večera / Užina).</div>'; ?>
 
     <?php if ($detalj): ?>
     <!-- ========== PRIKAZ DETALJA JEDNOG RECEPTA ========== -->
@@ -166,7 +167,7 @@ $uspeh = $_GET['uspeh'] ?? '';
                     <tbody>
                         <?php foreach ($detalj['sastojci'] as $s): ?>
                         <tr>
-                            <td><?= htmlspecialchars($s['Naziv']) ?></td>
+                            <td class="hover-img" data-img="<?= htmlspecialchars('img/sastojci/' . ($s['Slika'] ?? 'default.jpg')) ?>"><?= htmlspecialchars($s['Naziv']) ?></td>
                             <td><?= $s['Kolicina'] ?><?= $s['Jedinica'] ?></td>
                             <td><strong><?= $s['KalorijeUkupno'] ?></strong></td>
                             <td><?= $s['ProteiniUkupno'] ?></td>
@@ -226,8 +227,11 @@ $uspeh = $_GET['uspeh'] ?? '';
                         <?php foreach ($sviRecepti as $r): ?>
                         <tr>
                             <td><?= $r['ReceptID'] ?></td>
-                            <td><?= htmlspecialchars($r['Naziv']) ?></td>
-                            <td><span class="badge bg-secondary"><?= $r['Kategorija'] ?></span></td>
+                            <td class="hover-img" data-img="<?= htmlspecialchars(getRecipeImageSrc($r['Slika'] ?? '')) ?>"><?= htmlspecialchars($r['Naziv']) ?></td>
+                            <td>
+                                  <?php $kat = trim((string)($r['Kategorija'] ?? '')); ?>
+                                  <span class="badge bg-secondary"><?php echo ($kat === '' || $kat === '0') ? '-' : htmlspecialchars(ucfirst($kat)); ?></span>
+                            </td>
                             <td><?= $r['Tezina'] ?></td>
                             <td><?= $r['BrojPorcija'] ?></td>
                             <td><?= htmlspecialchars($r['Ime'] . ' ' . $r['Prezime']) ?></td>
@@ -262,7 +266,8 @@ $uspeh = $_GET['uspeh'] ?? '';
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Kategorija</label>
-                        <select name="kategorija" class="form-select">
+                        <select name="kategorija" class="form-select" required>
+                            <option value="">Izaberi kategoriju</option>
                             <?php foreach (['doručak','ručak','večera','užina'] as $k): ?>
                             <option value="<?= $k ?>" <?= $zaIzmenu['Kategorija'] === $k ? 'selected' : '' ?>><?= ucfirst($k) ?></option>
                             <?php endforeach; ?>
@@ -428,7 +433,8 @@ $uspeh = $_GET['uspeh'] ?? '';
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Kategorija</label>
-                            <select name="kategorija" class="form-select">
+                            <select name="kategorija" class="form-select" required>
+                                <option value="">Izaberi kategoriju</option>
                                 <option value="doručak">Doručak</option>
                                 <option value="ručak">Ručak</option>
                                 <option value="večera">Večera</option>
@@ -606,6 +612,65 @@ $uspeh = $_GET['uspeh'] ?? '';
             editTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
+</script>
+<style>
+/* Hover image popup */
+.hover-popup{position:fixed;pointer-events:none;z-index:2100;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.25);display:none;background:#fff}
+.hover-popup img{display:block;max-width:260px;max-height:260px;object-fit:cover}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    let hoverTimer = null;
+    let lastX = 0, lastY = 0;
+    const popup = document.createElement('div');
+    popup.className = 'hover-popup';
+    popup.innerHTML = '<img src="" alt="">';
+    document.body.appendChild(popup);
+
+    function showPopup(src, x, y){
+        const img = popup.querySelector('img');
+        img.src = src;
+        // adjust so popup doesn't go off-screen
+        const w = 280, h = 280;
+        if (x + w > window.innerWidth) x = x - w - 24;
+        if (y + h > window.innerHeight) y = window.innerHeight - h - 10;
+        popup.style.left = (Math.max(8, x)) + 'px';
+        popup.style.top = (Math.max(8, y)) + 'px';
+        popup.style.display = 'block';
+    }
+    function hidePopup(){
+        popup.style.display = 'none';
+        const img = popup.querySelector('img'); img.src = '';
+    }
+
+    document.querySelectorAll('[data-img]').forEach(el=>{
+        el.addEventListener('mouseenter', function(e){
+            const src = el.getAttribute('data-img');
+            // prefer current mouse coords if available
+            if (e && e.clientX) { lastX = e.clientX; lastY = e.clientY; }
+            hoverTimer = setTimeout(()=>{
+                let x = lastX || (el.getBoundingClientRect().right + 8);
+                let y = lastY || el.getBoundingClientRect().top;
+                showPopup(src, x + 12, y + 12);
+            }, 1000);
+        });
+        el.addEventListener('mousemove', function(e){
+            if (e && e.clientX) { lastX = e.clientX; lastY = e.clientY; }
+            if (popup.style.display === 'block'){
+                let x = e.clientX + 12;
+                let y = e.clientY + 12;
+                if (x + popup.offsetWidth > window.innerWidth) x = e.clientX - popup.offsetWidth - 12;
+                if (y + popup.offsetHeight > window.innerHeight) y = window.innerHeight - popup.offsetHeight - 10;
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+            }
+        });
+        el.addEventListener('mouseleave', function(){
+            if (hoverTimer){ clearTimeout(hoverTimer); hoverTimer = null; }
+            hidePopup();
+        });
+    });
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
