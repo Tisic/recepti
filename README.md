@@ -139,7 +139,6 @@ Klasa `Baza` je Singleton - postoji samo jedna instanca u čitavoj aplikaciji. T
 
 ---
 
-## Šta treba znati
 
 ### Sesije
 
